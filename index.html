@@ -1,29 +1,88 @@
 
-async function callDermAI(userMsg, imageBase64 = null) {
-  let content;
-  
-  // Vision payload for international support
-  if (imageBase64) {
-    content = [
-      { type: "text", text: userMsg || "Please analyze this skin condition." },
-      { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imageBase64}` } }
-    ];
-  } else {
-    content = userMsg;
-  }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexalite AI | Aesthetic Consultant</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        #chat-container { width: 100%; max-width: 400px; background: white; border-radius: 15px; shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; height: 90vh; overflow: hidden; border: 1px solid #ddd; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .message { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 14px; }
+        .user { align-self: flex-end; background-color: #007bff; color: white; }
+        .assistant { align-self: flex-start; background-color: #e9e9eb; color: #333; }
+        .input-area { border-top: 1px solid #eee; padding: 15px; display: flex; gap: 10px; }
+        input { flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 20px; outline: none; }
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 50%; cursor: pointer; }
+    </style>
+</head>
+<body>
 
-  const response = await fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages: [...chatHistory, { role: 'user', content: content }] })
-  });
+<div id="chat-container">
+    <div style="background: #007bff; color: white; padding: 15px; text-align: center; font-weight: bold;">Nexalite AI Consultant</div>
+    <div id="chat-box"></div>
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Ask about skin care...">
+        <button onclick="handleSend()">Send</button>
+    </div>
+</div>
 
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error);
+<script>
+    let chatHistory = [];
 
-  // Update history
-  chatHistory.push({ role: 'user', content: userMsg || "Sent a photo" });
-  chatHistory.push({ role: 'assistant', content: data.reply });
-  
-  return data.reply;
-}
+    async function handleSend() {
+        const inputField = document.getElementById('user-input');
+        const message = inputField.value;
+        if (!message) return;
+
+        appendMessage('user', message);
+        inputField.value = '';
+
+        try {
+            const reply = await callDermAI(message);
+            appendMessage('assistant', reply);
+        } catch (err) {
+            appendMessage('assistant', "Error: " + err.message);
+        }
+    }
+
+    function appendMessage(role, text) {
+        const chatBox = document.getElementById('chat-box');
+        const div = document.createElement('div');
+        div.className = `message ${role}`;
+        div.innerText = text;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // --- Aapka Function Yahan Hai ---
+    async function callDermAI(userMsg, imageBase64 = null) {
+        let content;
+        if (imageBase64) {
+            content = [
+                { type: "text", text: userMsg || "Please analyze this skin condition." },
+                { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imageBase64}` } }
+            ];
+        } else {
+            content = userMsg;
+        }
+
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: [...chatHistory, { role: 'user', content: content }] })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Something went wrong");
+
+        chatHistory.push({ role: 'user', content: userMsg || "Sent a photo" });
+        chatHistory.push({ role: 'assistant', content: data.reply });
+        
+        return data.reply;
+    }
+</script>
+
+</body>
+</html>
