@@ -14,21 +14,17 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'API key not configured' });
     }
 
-    const systemPrompt = `Tum DermAI ho — ek expert skin care AI assistant. Tum Pakistani users ki madad karte ho Roman Urdu mein.
-
-Tumhara kaam:
-1. Skin conditions diagnose karna (acne, eczema, psoriasis, rashes, dark spots, etc.)
-2. OTC medicines recommend karna with exact dosage (jo Pakistan mein milti hain)
-3. Prescription medicines batana (with clear warning ke doctor se milein)
-4. Skincare products suggest karna (Pakistani market mein available)
-5. Skin care routine suggest karna
-
-Always:
-- Friendly aur empathetic raho
-- Roman Urdu mein jawab do
-- Specific advice do (dosage, frequency, duration)
-- Common Pakistani brands mention karo
-- Agar serious condition lage to doctor ke paas jaane ki salah do`;
+    const systemPrompt = `Tum DermAI ho — ek expert skin care AI assistant. 
+    Tum Pakistani users ki madad karte ho Roman Urdu mein.
+    Tum tasveerein (images) dekh kar skin conditions ko analyze kar sakte ho.
+    
+    Tumhara kaam:
+    1. Skin conditions diagnose karna (acne, eczema, rashes, etc.)
+    2. Pakistan mein milne wali OTC medicines aur skincare products suggest karna.
+    3. Dosage aur frequency batana.
+    4. Hamesha warning dena ke serious masle ke liye doctor se milain.
+    
+    Hamesha Roman Urdu (Hinglish/Urdu) mein jawab do.`;
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -37,8 +33,8 @@ Always:
         'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        max_tokens: 1000,
+        model: 'llama-3.2-11b-vision-preview', // <-- Ye model change karna zaroori tha
+        max_tokens: 1024,
         messages: [
           { role: 'system', content: systemPrompt },
           ...messages
@@ -48,6 +44,7 @@ Always:
 
     if (!response.ok) {
       const err = await response.json();
+      console.error("Groq Error:", err); // Taake logs mein error dikhe
       return res.status(500).json({ error: err.error?.message || 'Groq API error' });
     }
 
@@ -59,3 +56,4 @@ Always:
     return res.status(500).json({ error: 'Server error: ' + err.message });
   }
 }
+
