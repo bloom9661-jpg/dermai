@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DermAI - Skin Care Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#f0fdf4,#fce8f3,#e8f4f8);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:10px}
+.app{width:100%;max-width:420px;height:93vh;background:rgba(255,255,255,0.93);border-radius:28px;box-shadow:0 20px 60px rgba(0,0,0,0.15);display:flex;flex-direction:column;overflow:hidden}
+.header{padding:16px 20px;background:linear-gradient(135deg,#2d7a4f,#1a5c38);display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:10px}
+.logo{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid rgba(255,255,255,0.3)}
+.header-title{color:#fff;font-weight:800;font-size:18px}
+.header-sub{color:rgba(255,255,255,0.7);font-size:10px}
+.online{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.15);border-radius:20px;padding:4px 10px;color:#fff;font-size:11px;font-weight:700}
+.dot{width:7px;height:7px;border-radius:50%;background:#7fff7f;animation:pulse 2s infinite}
+.nav{display:flex;border-top:1px solid rgba(0,0,0,0.06);background:rgba(255,255,255,0.95);padding:6px 0 8px}
+.nav-btn{flex:1;border:none;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0}
+.nav-emoji{font-size:20px}
+.nav-label{font-size:10px;font-weight:700;color:#aaa}
+.nav-label.active{color:#2d7a4f}
+.nav-bar{width:20px;height:3px;background:#2d7a4f;border-radius:2px;margin-top:2px}
+.page{flex:1;overflow-y:auto;display:none}
+.page.active{display:block}
+/* AD */
+.ad{display:flex;align-items:center;justify-content:space-between;border-radius:16px;padding:14px 16px;margin:10px 14px 0;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.12);text-decoration:none}
+.ad-info{display:flex;align-items:center;gap:10px}
+.ad-emoji{font-size:26px}
+.ad-title{color:#fff;font-weight:800;font-size:13px}
+.ad-sub{color:rgba(255,255,255,0.8);font-size:11px}
+.ad-btn{background:rgba(255,255,255,0.25);color:#fff;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;white-space:nowrap}
+/* HOME */
+.hero{background:linear-gradient(135deg,#2d7a4f,#1a5c38);border-radius:20px;padding:22px 18px;margin:12px 14px 0;position:relative;overflow:hidden}
+.hero-title{color:#fff;font-size:22px;font-weight:900;margin:8px 0 4px}
+.hero-sub{color:rgba(255,255,255,0.8);font-size:13px;margin-bottom:16px}
+.hero-btn{background:#fff;color:#2d7a4f;border:none;border-radius:12px;padding:10px 20px;font-size:13px;font-weight:800;cursor:pointer}
+.section-title{font-size:15px;font-weight:800;color:#1a1a2e;padding:14px 14px 8px}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px}
+.feature{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,0.06)}
+.feature-emoji{font-size:24px;margin-bottom:6px}
+.feature-title{font-size:13px;font-weight:800;color:#1a1a2e}
+.feature-desc{font-size:11px;color:#888;margin-top:2px}
+/* PRODUCTS */
+.cat-scroll{display:flex;gap:6px;overflow-x:auto;padding:0 14px 10px;scrollbar-width:none}
+.cat-btn{border-radius:20px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid rgba(45,122,79,0.2);background:rgba(45,122,79,0.08);color:#2d7a4f;font-family:'Nunito',sans-serif}
+.cat-btn.active{background:linear-gradient(135deg,#2d7a4f,#3d9a5f);color:#fff;border:none;box-shadow:0 2px 8px rgba(45,122,79,0.3)}
+.products-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px 14px}
+.product{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);text-decoration:none;display:block}
+.product-img{height:90px;display:flex;align-items:center;justify-content:center;font-size:40px;position:relative}
+.product-badge{position:absolute;top:8px;right:8px;border-radius:20px;padding:3px 8px;font-size:10px;font-weight:800;color:#fff}
+.product-info{padding:12px}
+.product-name{font-size:12px;font-weight:800;color:#1a1a2e;line-height:1.3;margin-bottom:4px}
+.product-desc{font-size:11px;color:#666;margin-bottom:6px}
+.product-price{font-size:13px;font-weight:800;color:#2d7a4f}
+.product-old{font-size:11px;color:#aaa;text-decoration:line-through;margin-left:6px}
+.product-buy{background:linear-gradient(135deg,#2d7a4f,#3d9a5f);color:#fff;border-radius:10px;padding:7px;text-align:center;font-size:12px;font-weight:700;margin-top:8px}
+/* CHAT */
+.messages{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:12px}
+.msg-row{display:flex;align-items:flex-end;gap:8px}
+.msg-row.user{justify-content:flex-end}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ai-avatar{background:linear-gradient(135deg,#2d7a4f,#5aad7a)}
+.user-avatar{background:linear-gradient(135deg,#f472b6,#e879a0)}
+.bubble{max-width:75%;border-radius:18px;padding:10px 14px;font-size:13px;line-height:1.7}
+.ai-bubble{background:#fff;color:#1a1a2e;border-radius:18px 18px 18px 4px;box-shadow:0 2px 10px rgba(0,0,0,0.08);border:1px solid rgba(45,122,79,0.1)}
+.user-bubble{background:linear-gradient(135deg,#2d7a4f,#3d9a5f);color:#fff;border-radius:18px 18px 4px 18px}
+.typing{display:flex;gap:4px;padding:4px 0}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:#2d7a4f;animation:bounce 1s ease-in-out infinite}
+.suggestions{padding:0 14px 8px}
+.suggest-label{font-size:11px;color:#999;font-weight:700;margin-bottom:6px}
+.suggest-row{display:flex;flex-wrap:wrap;gap:6px}
+.suggest-chip{background:rgba(45,122,79,0.08);border:1px solid rgba(45,122,79,0.2);border-radius:20px;padding:5px 10px;font-size:11px;color:#2d7a4f;cursor:pointer;font-weight:600;font-family:'Nunito',sans-serif}
+.rec-products{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:16px;padding:14px;border:1px solid rgba(45,122,79,0.15);margin-top:4px}
+.rec-title{font-size:13px;font-weight:800;color:#2d7a4f;margin-bottom:10px}
+.rec-item{background:#fff;border-radius:12px;padding:10px;display:flex;align-items:center;gap:10px;margin-bottom:8px;text-decoration:none}
+.rec-emoji{font-size:22px}
+.rec-name{font-size:12px;font-weight:700;color:#1a1a2e}
+.rec-desc{font-size:11px;color:#666}
+.rec-price{font-size:12px;font-weight:800;color:#2d7a4f;white-space:nowrap}
+.rec-shop{font-size:10px;color:#10b981;font-weight:700}
+.view-all-btn{width:100%;margin-top:8px;background:transparent;border:1.5px solid #2d7a4f;border-radius:10px;padding:8px;color:#2d7a4f;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif}
+.img-preview{margin:0 14px 8px;background:rgba(45,122,79,0.06);border:1px solid rgba(45,122,79,0.15);border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:10px}
+.preview-thumb{width:36px;height:36px;border-radius:8px;object-fit:cover}
+.preview-name{font-size:11px;font-weight:700;color:#2d7a4f}
+.preview-size{font-size:10px;color:#999}
+.remove-btn{background:rgba(255,0,0,0.1);border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;color:#e53e3e;font-size:11px}
+.input-area{padding:10px 14px 12px;border-top:1px solid rgba(0,0,0,0.06);background:rgba(255,255,255,0.9);display:flex;align-items:flex-end;gap:8px}
+.upload-btn{width:40px;height:40px;border-radius:12px;background:rgba(45,122,79,0.1);border:1px solid rgba(45,122,79,0.2);cursor:pointer;font-size:17px;flex-shrink:0}
+textarea{flex:1;resize:none;border:1.5px solid rgba(45,122,79,0.2);border-radius:12px;padding:10px 12px;font-size:13px;font-family:'Nunito',sans-serif;background:rgba(255,255,255,0.9);outline:none;max-height:100px;overflow-y:auto;color:#333}
+.send-btn{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#2d7a4f,#3d9a5f);border:none;cursor:pointer;color:#fff;font-size:17px;flex-shrink:0;box-shadow:0 2px 8px rgba(45,122,79,0.3)}
+.disclaimer{padding:6px 14px 10px;font-size:10px;color:#bbb;text-align:center;font-weight:600}
+.chat-page{display:none;flex-direction:column;height:100%}
+.chat-page.active{display:flex}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:#d4e6d4;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">🌿</div>
+      <div>
+        <div class="header-title">DermAI</div>
+        <div class="header-sub">Skin Care Expert</div>
+      </div>
+    </div>
+    <div class="online"><div class="dot"></div>Online</div>
+  </div>
+
+  <!-- PAGES -->
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div style="font-size:30px">🌿</div>
+      <div class="hero-title">DermAI</div>
+      <div class="hero-sub">Expert AI Skin Care — Free!</div>
+      <button class="hero-btn" onclick="showPage('chat')">💬 AI Chat Shuru Karo</button>
+    </div>
+    <a class="ad" href="https://www.daraz.pk" target="_blank" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+      <div class="ad-info"><div class="ad-emoji">🛍️</div><div><div class="ad-title">Daraz Skin Sale — 50% Off!</div><div class="ad-sub">Top dermatologist brands</div></div></div>
+      <div class="ad-btn">Shop →</div>
+    </a>
+    <div class="section-title">✨ Kya Milega?</div>
+    <div class="features">
+      <div class="feature"><div class="feature-emoji">🔍</div><div class="feature-title">Diagnosis</div><div class="feature-desc">Skin condition identify karo</div></div>
+      <div class="feature"><div class="feature-emoji">💉</div><div class="feature-title">Prescription</div><div class="feature-desc">Expert drug recommendations</div></div>
+      <div class="feature"><div class="feature-emoji">💊</div><div class="feature-title">OTC Meds</div><div class="feature-desc">Pharmacy medicines with dosage</div></div>
+      <div class="feature"><div class="feature-emoji">🛒</div><div class="feature-title">Products</div><div class="feature-desc">Best skincare products</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 14px 8px">
+      <div style="font-size:15px;font-weight:800;color:#1a1a2e">🛒 Top Products</div>
+      <button onclick="showPage('products')" style="background:none;border:none;color:#2d7a4f;font-size:12px;font-weight:700;cursor:pointer">Sab Dekhein →</button>
+    </div>
+    <div style="display:flex;gap:10px;overflow-x:auto;padding:0 14px 14px;scrollbar-width:none">
+      <a href="https://www.daraz.pk" target="_blank" style="text-decoration:none;flex-shrink:0;width:120px">
+        <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06)">
+          <div style="background:#e0f2fe;height:65px;display:flex;align-items:center;justify-content:center;font-size:28px">💧</div>
+          <div style="padding:8px"><div style="font-size:11px;font-weight:700;color:#1a1a2e">Neutrogena Hydro</div><div style="font-size:11px;font-weight:800;color:#2d7a4f">Rs. 2,499</div></div>
+        </div>
+      </a>
+      <a href="https://www.daraz.pk" target="_blank" style="text-decoration:none;flex-shrink:0;width:120px">
+        <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06)">
+          <div style="background:#d1fae5;height:65px;display:flex;align-items:center;justify-content:center;font-size:28px">✨</div>
+          <div style="padding:8px"><div style="font-size:11px;font-weight:700;color:#1a1a2e">Clean & Clear</div><div style="font-size:11px;font-weight:800;color:#2d7a4f">Rs. 850</div></div>
+        </div>
+      </a>
+      <a href="https://www.daraz.pk" target="_blank" style="text-decoration:none;flex-shrink:0;width:120px">
+        <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06)">
+          <div style="background:#fef3c7;height:65px;display:flex;align-items:center;justify-content:center;font-size:28px">☀️</div>
+          <div style="padding:8px"><div style="font-size:11px;font-weight:700;color:#1a1a2e">Isntree SPF50+</div><div style="font-size:11px;font-weight:800;color:#2d7a4f">Rs. 3,200</div></div>
+        </div>
+      </a>
+    </div>
+    <a class="ad" href="https://www.iherb.com" target="_blank" style="background:linear-gradient(135deg,#11998e,#38ef7d);margin-bottom:14px">
+      <div class="ad-info"><div class="ad-emoji">🌿</div><div><div class="ad-title">iHerb Natural Skincare</div><div class="ad-sub">International brands, Pakistan delivery</div></div></div>
+      <div class="ad-btn">Explore →</div>
+    </a>
+  </div>
+
+  <!-- CHAT PAGE -->
+  <div class="chat-page" id="page-chat">
+    <a class="ad" href="https://www.daraz.pk" target="_blank" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+      <div class="ad-info"><div class="ad-emoji">🛍️</div><div><div class="ad-title">Daraz Skin Sale!</div><div class="ad-sub">50% off top brands</div></div></div>
+      <div class="ad-btn">Shop →</div>
+    </a>
+    <div class="messages" id="messages">
+      <div class="msg-row">
+        <div class="avatar ai-avatar">🌿</div>
+        <div class="bubble ai-bubble">Assalam-o-Alaikum! 👋 Main <strong>DermAI</strong> hun.<br><br>✅ Condition diagnosis<br>💊 OTC + Prescription medicines<br>💉 Exact dosage treatment<br>🛒 Product recommendations<br><br>Apni skin problem batao — text ya photo! 📸</div>
+      </div>
+    </div>
+    <div class="suggestions" id="suggestions">
+      <div class="suggest-label">💡 Common Problems:</div>
+      <div class="suggest-row">
+        <button class="suggest-chip" onclick="sendSuggestion('Pimples aur oily skin 😣')">Pimples aur oily skin 😣</button>
+        <button class="suggest-chip" onclick="sendSuggestion('Dry flaky skin 💧')">Dry flaky skin 💧</button>
+        <button class="suggest-chip" onclick="sendSuggestion('Dark spots aur uneven tone 🌑')">Dark spots 🌑</button>
+        <button class="suggest-chip" onclick="sendSuggestion('Skin rash aur khujli 🔴')">Skin rash 🔴</button>
+        <button class="suggest-chip" onclick="sendSuggestion('Sunburn ☀️')">Sunburn ☀️</button>
+      </div>
+    </div>
+    <div class="img-preview" id="img-preview" style="display:none">
+      <img class="preview-thumb" id="preview-thumb" src="" alt=""/>
+      <div style="flex:1"><div class="preview-name" id="preview-name"></div><div class="preview-size" id="preview-size"></div></div>
+      <button class="remove-btn" onclick="removeImage()">✕</button>
+    </div>
+    <div class="input-area">
+      <input type="file" accept="image/*" id="file-input" style="display:none" onchange="handleImage(event)"/>
+      <button class="upload-btn" onclick="document.getElementById('file-input').click()">📸</button>
+      <textarea id="user-input" placeholder="Skin problem likho ya photo upload karo..." rows="1" onkeydown="handleKey(event)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+    <div class="disclaimer">⚠️ Prescription drugs doctor ki supervision mein lein</div>
+  </div>
+
+  <!-- PRODUCTS PAGE -->
+  <div class="page" id="page-products">
+    <a class="ad" href="https://www.iherb.com" target="_blank" style="background:linear-gradient(135deg,#11998e,#38ef7d)">
+      <div class="ad-info"><div class="ad-emoji">🌿</div><div><div class="ad-title">iHerb Natural Skincare</div><div class="ad-sub">International brands delivered</div></div></div>
+      <div class="ad-btn">Explore →</div>
+    </a>
+    <div class="section-title">🛒 Recommended Products</div>
+    <div class="cat-scroll">
+      <button class="cat-btn active" onclick="filterCat('all',this)">🌿 All</button>
+      <button class="cat-btn" onclick="filterCat('acne',this)">acne</button>
+      <button class="cat-btn" onclick="filterCat('moisturizer',this)">moisturizer</button>
+      <button class="cat-btn" onclick="filterCat('sunscreen',this)">sunscreen</button>
+      <button class="cat-btn" onclick="filterCat('serum',this)">serum</button>
+      <button class="cat-btn" onclick="filterCat('cleanser',this)">cleanser</button>
+    </div>
+    <div class="products-grid" id="products-grid"></div>
+    <a class="ad" href="https://www.daraz.pk" target="_blank" style="background:linear-gradient(135deg,#667eea,#764ba2);margin-bottom:14px">
+      <div class="ad-info"><div class="ad-emoji">🛍️</div><div><div class="ad-title">Daraz Skin Sale!</div><div class="ad-sub">Limited time 50% off</div></div></div>
+      <div class="ad-btn">Shop →</div>
+    </a>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="nav">
+    <button class="nav-btn" onclick="showPage('home')" id="nav-home">
+      <div class="nav-emoji">🏠</div>
+      <div class="nav-label active" id="label-home">Home</div>
+      <div class="nav-bar" id="bar-home"></div>
+    </button>
+    <button class="nav-btn" onclick="showPage('chat')" id="nav-chat">
+      <div class="nav-emoji">💬</div>
+      <div class="nav-label" id="label-chat">AI Chat</div>
+    </button>
+    <button class="nav-btn" onclick="showPage('products')" id="nav-products">
+      <div class="nav-emoji">🛒</div>
+      <div class="nav-label" id="label-products">Products</div>
+    </button>
+  </div>
+</div>
+
+<script>
+const GROQ_KEY = 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";
+
+const SYSTEM_PROMPT = `You are DermAI, expert dermatology AI. Analyze skin conditions and provide:
+
+🔍 **Condition Assessment** - diagnose condition, severity Mild/Moderate/Severe
+🏠 **Home Remedies** - 2-3 practical tips
+💊 **OTC Medications** - 2-3 pharmacy medicines with Pakistan brand names, exact dosage, duration
+💉 **Prescription Treatment** - 3-4 prescription drugs with exact dosage, frequency, duration, drug class, warnings
+🧴 **Skincare Routine** - morning & night routine
+⚠️ **Warnings** - side effects, contraindications
+🏥 **See Doctor When** - urgent signs
+
+At end add: "🛒 **Recommended:** [mention product types like moisturizer/sunscreen/acne/serum/cleanser]"
+
+Be specific with Pakistani brand names. Mix Urdu/Roman Urdu. Always add prescription supervision disclaimer.
+Respond in same language as patient.`;
+
+const PRODUCTS = [
+  {id:1,cat:"moisturizer",name:"Neutrogena Hydro Boost",desc:"Hyaluronic acid — dry skin ke liye best",price:"Rs. 2,499",old:"Rs. 3,200",badge:"Best Seller",badgeColor:"#f59e0b",emoji:"💧",bg:"#e0f2fe",tags:["dry","moisturizer"],link:"https://www.daraz.pk"},
+  {id:2,cat:"acne",name:"Clean & Clear Acne Spot",desc:"Salicylic acid — pimples ke liye proven",price:"Rs. 850",old:"Rs. 1,100",badge:"Top Rated",badgeColor:"#10b981",emoji:"✨",bg:"#d1fae5",tags:["acne","pimples","oily"],link:"https://www.daraz.pk"},
+  {id:3,cat:"sunscreen",name:"Isntree Sun Gel SPF50+",desc:"Lightweight — daily use ke liye perfect",price:"Rs. 3,200",old:"Rs. 4,000",badge:"🔥 Hot",badgeColor:"#ef4444",emoji:"☀️",bg:"#fef3c7",tags:["sunscreen","spf"],link:"https://www.daraz.pk"},
+  {id:4,cat:"serum",name:"The Ordinary Niacinamide",desc:"Dark spots, pores — derm recommended",price:"Rs. 2,100",old:"Rs. 2,800",badge:"Derm Pick",badgeColor:"#8b5cf6",emoji:"🧪",bg:"#ede9fe",tags:["dark spots","serum","niacinamide"],link:"https://www.daraz.pk"},
+  {id:5,cat:"cleanser",name:"CeraVe Hydrating Cleanser",desc:"Gentle ceramides — sensitive skin",price:"Rs. 3,800",old:"Rs. 4,500",badge:"Gentle",badgeColor:"#06b6d4",emoji:"🫧",bg:"#cffafe",tags:["cleanser","sensitive"],link:"https://www.daraz.pk"},
+  {id:6,cat:"serum",name:"Retinol 0.5% Serum",desc:"Anti-aging — wrinkles ke liye",price:"Rs. 1,900",old:"Rs. 2,500",badge:"Anti-Age",badgeColor:"#f43f5e",emoji:"⏰",bg:"#ffe4e6",tags:["aging","retinol","wrinkles"],link:"https://www.daraz.pk"},
+];
+
+let msgHistory = [];
+let imageBase64 = null;
+let imageFile = null;
+let currentPage = 'home';
+
+function showPage(page) {
+  currentPage = page;
+  ['home','products'].forEach(p => {
+    const el = document.getElementById('page-'+p);
+    el.classList.toggle('active', p === page);
+  });
+  ['chat'].forEach(p => {
+    const el = document.getElementById('page-'+p);
+    el.classList.toggle('active', p === page);
+  });
+  ['home','chat','products'].forEach(p => {
+    document.getElementById('label-'+p).classList.toggle('active', p === page);
+    const bar = document.getElementById('bar-'+p);
+    if(bar) bar.style.display = p === page ? 'block' : 'none';
+  });
+  if(page === 'products') renderProducts('all');
+}
+
+function renderProducts(cat) {
+  const grid = document.getElementById('products-grid');
+  const filtered = cat === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === cat);
+  grid.innerHTML = filtered.map(p => `
+    <a href="${p.link}" target="_blank" class="product">
+      <div class="product-img" style="background:${p.bg}">
+        <span>${p.emoji}</span>
+        <div class="product-badge" style="background:${p.badgeColor}">${p.badge}</div>
+      </div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.desc}</div>
+        <div><span class="product-price">${p.price}</span><span class="product-old">${p.old}</span></div>
+        <div class="product-buy">🛒 Daraz Par Kharido</div>
+      </div>
+    </a>`).join('');
+}
+
+function filterCat(cat, btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProducts(cat);
+}
+
+function handleImage(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  imageFile = file;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    imageBase64 = ev.target.result.split(',')[1];
+    document.getElementById('preview-thumb').src = ev.target.result;
+    document.getElementById('preview-name').textContent = file.name;
+    document.getElementById('preview-size').textContent = (file.size/1024).toFixed(1)+' KB';
+    document.getElementById('img-preview').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImage() {
+  imageBase64 = null; imageFile = null;
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('file-input').value = '';
+}
+
+function addMessage(role, content, imgSrc) {
+  const msgs = document.getElementById('messages');
+  const isUser = role === 'user';
+  const div = document.createElement('div');
+  div.className = 'msg-row' + (isUser ? ' user' : '');
+  const imgHtml = imgSrc ? `<img src="${imgSrc}" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:8px;display:block"/>` : '';
+  const formatted = content.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n/g,'<br/>');
+  if(isUser) {
+    div.innerHTML = `<div class="bubble user-bubble">${imgHtml}${formatted}</div><div class="avatar user-avatar">👤</div>`;
+  } else {
+    div.innerHTML = `<div class="avatar ai-avatar">🌿</div><div class="bubble ai-bubble">${imgHtml}${formatted}</div>`;
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function addTyping() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg-row';
+  div.id = 'typing-indicator';
+  div.innerHTML = `<div class="avatar ai-avatar">🌿</div><div class="bubble ai-bubble"><div class="typing"><div class="typing-dot" style="animation-delay:0s"></div><div class="typing-dot" style="animation-delay:0.2s"></div><div class="typing-dot" style="animation-delay:0.4s"></div></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if(t) t.remove();
+}
+
+function showRecProducts(text) {
+  const lower = text.toLowerCase();
+  const matched = PRODUCTS.filter(p => p.tags.some(t => lower.includes(t))).slice(0,3);
+  if(!matched.length) return;
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'rec-products';
+  div.innerHTML = `<div class="rec-title">🛒 Aapke Liye Recommended Products</div>` +
+    matched.map(p => `<a href="${p.link}" target="_blank" class="rec-item"><span class="rec-emoji">${p.emoji}</span><div style="flex:1"><div class="rec-name">${p.name}</div><div class="rec-desc">${p.desc}</div></div><div style="text-align:right"><div class="rec-price">${p.price}</div><div class="rec-shop">Daraz →</div></div></a>`).join('') +
+    `<button class="view-all-btn" onclick="showPage('products')">Saare Products Dekhein →</button>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function sendMessage(text) {
+  const input = document.getElementById('user-input');
+  const msg = text || input.value.trim();
+  if(!msg && !imageBase64) return;
+  document.getElementById('suggestions').style.display = 'none';
+  const imgSrc = imageBase64 ? document.getElementById('preview-thumb').src : null;
+  addMessage('user', msg || 'Yeh meri skin ki photo hai.', imgSrc);
+  const apiContent = [];
+  if(imageBase64) apiContent.push({type:"image_url",image_url:{url:`data:image/jpeg;base64,${imageBase64}`}});
+  apiContent.push({type:"text",text:msg || "Analyze this skin image."});
+  msgHistory.push({role:"user",content:imageBase64 ? apiContent : msg});
+  input.value = ''; removeImage();
+  addTyping();
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+GROQ_KEY},
+      body:JSON.stringify({model:"llama-3.3-70b-versatile",max_tokens:1500,messages:[{role:"system",content:SYSTEM_PROMPT},...msgHistory]})
+    });
+    const data = await res.json();
+    const reply = data.choices?.[0]?.message?.content || "Koi response nahi mila.";
+    removeTyping();
+    addMessage('assistant', reply);
+    msgHistory.push({role:"assistant",content:reply});
+    showRecProducts(reply + " " + msg);
+  } catch(e) {
+    removeTyping();
+    addMessage('assistant','⚠️ API key check karein ya internet connection dekhen.');
+  }
+}
+
+function sendSuggestion(text) {
+  document.getElementById('user-input').value = text;
+  sendMessage(text);
+}
+
+function handleKey(e) {
+  if(e.key==='Enter' && !e.shiftKey){e.preventDefault();sendMessage();}
+}
+
+// Init
+showPage('home');
+renderProducts('all');
+document.querySelectorAll('.nav-bar').forEach((b,i) => { if(i>0) b.style.display='none'; });
+</script>
+</body>
+</html>
